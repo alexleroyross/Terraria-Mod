@@ -30,6 +30,11 @@ namespace ExampleMod.Items
 			recipe.SetResult(this, 999);
 			recipe.AddRecipe();
 
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(this);
+            recipe.SetResult(ItemID.ChlorophyteHeadgear);
+            recipe.AddRecipe();
+
 			/*
 			// Start a new Recipe. (Prepend with "ModRecipe " if 1st recipe in code block.)
 			recipe = new ModRecipe(mod);

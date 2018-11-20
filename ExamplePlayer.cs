@@ -45,6 +45,7 @@ namespace ExampleMod
 		public bool blockyPower;
 
 		public bool ZoneExample = false;
+        public bool ZoneStarship = false;
 
 		public override void ResetEffects()
 		{
@@ -104,24 +105,27 @@ namespace ExampleMod
 		public override void UpdateBiomes()
 		{
 			ZoneExample = (ExampleWorld.exampleTiles > 50);
-		}
+            ZoneStarship = (ExampleWorld.starshipTiles > 50);
+        }
 
 		public override bool CustomBiomesMatch(Player other)
 		{
 			ExamplePlayer modOther = other.GetModPlayer<ExamplePlayer>(mod);
-			return ZoneExample == modOther.ZoneExample;
+			return ZoneExample == modOther.ZoneExample || ZoneStarship == modOther.ZoneStarship;
 		}
 
 		public override void CopyCustomBiomesTo(Player other)
 		{
 			ExamplePlayer modOther = other.GetModPlayer<ExamplePlayer>(mod);
 			modOther.ZoneExample = ZoneExample;
+            modOther.ZoneStarship = ZoneStarship;
 		}
 
 		public override void SendCustomBiomes(BinaryWriter writer)
 		{
 			BitsByte flags = new BitsByte();
 			flags[0] = ZoneExample;
+            flags[1] = ZoneStarship;
 			writer.Write(flags);
 		}
 
@@ -129,6 +133,7 @@ namespace ExampleMod
 		{
 			BitsByte flags = reader.ReadByte();
 			ZoneExample = flags[0];
+            ZoneStarship = flags[1];
 		}
 
 		public override void UpdateBiomeVisuals()
@@ -145,6 +150,10 @@ namespace ExampleMod
 			{
 				return mod.GetTexture("ExampleBiomeMapBackground");
 			}
+            if(ZoneStarship)
+            {
+                return mod.GetTexture("StarshipBiomeMapBackground");
+            }
 			return null;
 		}
 

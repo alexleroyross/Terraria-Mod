@@ -118,7 +118,12 @@ namespace ExampleMod
 			text = CreateTranslation("VolcanoWarning");
 			text.SetDefault("Did you hear something....A Volcano! Find Cover!");
 			AddTranslation(text);
-		}
+
+            // Text for when a cheese moon begins
+            text = CreateTranslation("CheeseMoon");
+            text.SetDefault("A weird smell is pervading the air... kind of reminds you of spoiled milk?");
+            AddTranslation(text);
+        }
 
 		public override void Unload()
 		{
@@ -186,8 +191,12 @@ namespace ExampleMod
 					&& (Main.LocalPlayer.FindBuffIndex(BuffType("CarMount")) != -1 || Main.LocalPlayer.GetModPlayer<ExamplePlayer>(this).ZoneExample))
 				{
 					music = GetSoundSlot(SoundType.Music, "Sounds/Music/DriveMusic");
-				}
-			}
+                }
+                if (Main.LocalPlayer.active && Main.LocalPlayer.GetModPlayer<ExamplePlayer>(this).ZoneStarship)
+                {
+                    music = GetSoundSlot(SoundType.Music, "Sounds/Music/StarshipMusic");
+                }
+            }
 		}
 
 		const int ShakeLength = 5;
@@ -200,7 +209,7 @@ namespace ExampleMod
 		float targetOffsetY = 0;
 
 		// Volcano Tremor
-		public override Matrix ModifyTransformMatrix(Matrix Transform)
+		public /*override*/ Matrix ModifyTransformMatrix(Matrix Transform)
 		{
 			if (!Main.gameMenu)
 			{

@@ -1,4 +1,5 @@
 using System.IO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
@@ -25,12 +26,20 @@ namespace ExampleMod
 		public const int DefaultVolcanoCountdown = 300; // 5 seconds
 		public const int DefaultVolcanoCooldown = 10000; // At least 3 min of daytime between volcanoes
 		public const int VolcanoChance = 10000; // Chance each tick of Volcano if cooldown exhausted.
+        public const int CheeseMoonChance = 2; // Chance each night that there will be a cheese moon.
+        public static bool CheeseMoonActive = false;
 		public int VolcanoCountdown;
 		public int VolcanoCooldown = DefaultVolcanoCooldown;
 		public int VolcanoTremorTime;
 		public static int exampleTiles = 0;
+        public static int starshipTiles = 0;
+        public const int maxStarshipSizeX = 400;
+        public const int maxStarshipSizeY = 800;
+        public const int minStarshipSizeX = 200;
+        public const int minStarshipSizeY = 400;
+        bool test = false;
 
-		public override void Initialize()
+        public override void Initialize()
 		{
 			downedAbomination = false;
 			downedPuritySpirit = false;
@@ -156,7 +165,17 @@ namespace ExampleMod
 					MakeWells();
 				}));
 			}
-		}
+
+            int StarshipIndex = tasks.FindIndex(genpass => genpass.Name.Equals("Jungle Temple"));
+            if (StarshipIndex != -1)
+            {
+                tasks.Insert(StarshipIndex + 1, new PassLegacy("Starship", delegate (GenerationProgress progress)
+                {
+                    progress.Message = "Landing a Spaceship";
+                    MakeStarship();
+                }));
+            }
+        }
 
 		private void MakeWells()
 		{
@@ -350,7 +369,211 @@ namespace ExampleMod
 			return true;
 		}
 
-		public override void PostWorldGen()
+        /*
+        int[,] starshipshape = new int[,];
+        {
+            {0,0,3,1,4,0,0 },
+            {0,3,1,1,1,4,0 },
+            {3,1,1,1,1,1,4 },
+            {5,5,5,6,5,5,5 },
+            {5,5,5,6,5,5,5 },
+            {5,5,5,6,5,5,5 },
+            {2,1,5,6,5,1,2 },
+            {1,1,5,5,5,1,1 },
+            {1,1,5,5,5,1,1 },
+            {0,1,5,5,5,1,0 },
+            {0,1,5,5,5,1,0 },
+            {0,1,5,5,5,1,0 },
+            {0,1,5,5,5,1,0 },
+            {0,1,5,5,5,1,0 },
+            {0,1,5,5,5,1,0 },
+            {0,1,5,5,5,1,0 },
+            {0,1,5,5,5,1,0 },
+            {0,1,1,1,1,1,0 },
+        };
+        */
+
+        /*
+    int[,] starshipshapeWall = new int[,];
+    {
+        {0,0,0,0,0,0,0 },
+        {0,0,0,0,0,0,0 },
+        {0,0,0,0,0,0,0 },
+        {0,0,1,1,1,0,0 },
+        {0,0,1,1,1,0,0 },
+        {0,0,1,1,1,0,0 },
+        {0,0,1,1,1,0,0 },
+        {0,0,1,1,1,0,0 },
+        {0,0,1,1,1,0,0 },
+        {0,0,1,1,1,0,0 },
+        {0,0,1,1,1,0,0 },
+        {0,0,1,1,1,0,0 },
+        {0,0,1,1,1,0,0 },
+        {0,0,1,1,1,0,0 },
+        {0,0,1,1,1,0,0 },
+        {0,0,1,1,1,0,0 },
+        {0,0,1,1,1,0,0 },
+        {0,0,1,1,1,0,0 },
+    };
+    */
+
+        private int[,] GenerateStarship()
+        {
+            Random randsizex = new Random();
+            Random randsizey = new Random();
+            Random rand = new Random();
+            int sizex = randsizex.Next(minStarshipSizeX, maxStarshipSizeX);
+            int sizey = randsizey.Next(minStarshipSizeY, maxStarshipSizeY);
+            int[,] starship = new int[sizey, sizex];
+            int x = 0, y = 0;
+            const int baseChanceBlock = 1;
+            int chanceBlock = baseChanceBlock;
+            int randChanceWall = 40;
+            const int Block = 1;
+            const int Wall = 0;
+
+            for (y = 0; y < sizey - 1; y++)
+            {
+                for (x = 0; x < sizex - 1; x++)
+                {
+                    if(x > 0)
+                    {
+                        if(starship[y, x - 1] == Wall)
+                        {
+                            chanceBlock += 8;
+                        }
+                    }
+                    if(y > 0)
+                    {
+                        if(starship[y - 1, x] == Wall)
+                        {
+                            chanceBlock += 4;
+                        }
+                    }
+                    if (chanceBlock == baseChanceBlock)
+                        starship[y, x] = (rand.Next(randChanceWall) == 1 ? 1 : 0);
+                    else
+                        starship[y, x] = (rand.Next(chanceBlock) == 1 ? 1 : 0);
+                    chanceBlock = baseChanceBlock;
+                }
+            }
+            return starship;
+        }
+
+        private void MakeStarship()
+        {
+            bool success = false;
+            int attempts = 0;
+            while (!success)
+            {
+                attempts++;
+                if (attempts > 1000)
+                {
+                    success = true;
+                    continue;
+                }
+                int i = WorldGen.genRand.Next(300, Main.maxTilesX - 300);
+                if (i <= Main.maxTilesX / 2 - 50 || i >= Main.maxTilesX / 2 + 50)
+                {
+                    int j = 0;
+                    while (!Main.tile[i, j].active() && (double)j < Main.worldSurface)
+                    {
+                        j++;
+                    }
+                    if (Main.tile[i, j].type == TileID.Dirt)
+                    {
+                        j--;
+                        if (j > 150)
+                        {
+                            bool placementOK = true;
+                            for (int l = i - 4; l < i + 4; l++)
+                            {
+                                for (int m = j - 6; m < j + 20; m++)
+                                {
+                                    if (Main.tile[l, m].active())
+                                    {
+                                        int type = (int)Main.tile[l, m].type;
+                                        if (type == TileID.BlueDungeonBrick || type == TileID.GreenDungeonBrick || type == TileID.PinkDungeonBrick || type == TileID.Cloud || type == TileID.RainCloud)
+                                        {
+                                            placementOK = false;
+                                        }
+                                    }
+                                }
+                            }
+                            if (placementOK)
+                            {
+                                success = PlaceStarship(i, j);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public bool PlaceStarship(int i, int j)
+        {
+            int[,] starshipshape = GenerateStarship();
+            if (!WorldGen.SolidTile(i, j + 1))
+            {
+                return false;
+            }
+            if (Main.tile[i, j].active())
+            {
+                return false;
+            }
+            if (j < 150)
+            {
+                return false;
+            }
+
+            for (int y = 0; y < starshipshape.GetLength(0); y++)
+            {
+                for (int x = 0; x < starshipshape.GetLength(1); x++)
+                {
+                    int k = i - 3 + x;
+                    int l = j - 6 + y;
+                    if (WorldGen.InWorld(k, l, 30))
+                    {
+                        Tile tile = Framing.GetTileSafely(k, l);
+                        switch (starshipshape[y, x])
+                        {
+                            case 0:
+                                tile.wall = (ushort)mod.WallType("StarshipWall");
+                                break;
+                            case 1:
+                                tile.type = (ushort)mod.TileType("StarshipBlock");
+                                tile.active(true);
+                                break;
+                            case 2:
+                                tile.type = (ushort)mod.TileType("StarshipBlock");
+                                tile.active(true);
+                                tile.halfBrick(true);
+                                break;
+                            case 3:
+                                tile.type = (ushort)mod.TileType("StarshipBlock");
+                                tile.active(true);
+                                tile.slope(2);
+                                break;
+                            case 4:
+                                tile.type = (ushort)mod.TileType("StarshipBlock");
+                                tile.active(true);
+                                tile.slope(1);
+                                break;
+                            case 5:
+                                tile.active(false);
+                                break;
+                            case 6:
+                                tile.type = TileID.Rope;
+                                tile.active(true);
+                                break;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        public override void PostWorldGen()
 		{
 			for (int i = 0; i < Main.maxTilesX; i++)
 			{
@@ -388,16 +611,43 @@ namespace ExampleMod
 			ExamplePlayer modPlayer = Main.LocalPlayer.GetModPlayer<ExamplePlayer>(mod);
 			modPlayer.voidMonolith = false;
 			exampleTiles = 0;
+            starshipTiles = 0;
 		}
 
 		public override void TileCountsAvailable(int[] tileCounts)
 		{
 			exampleTiles = tileCounts[mod.TileType("ExampleBlock")];
-		}
+            starshipTiles = tileCounts[mod.TileType("StarshipBlock")];
+        }
 
 		public override void PostUpdate()
 		{
-			if (Main.dayTime && VolcanoCountdown == 0)
+            if(Main.dayTime && Main.time == 53990)
+            {
+                Random rand = new Random();
+                if(rand.Next(1, CheeseMoonChance) == 1)
+                {
+                    CheeseMoonActive = true;
+                    string key = "Mods.ExampleMod.CheeseMoon";
+                    Color messageColor = Color.Orange;
+                    if (Main.netMode == 2) // Server
+                    {
+                        NetMessage.BroadcastChatMessage(NetworkText.FromKey(key), messageColor);
+                    }
+                    else if (Main.netMode == 0) // Single Player
+                    {
+                        Main.NewText(Language.GetTextValue(key), messageColor);
+                    }
+                }
+            }
+            else if(Main.dayTime && Main.time == 1)
+            {
+                if(CheeseMoonActive)
+                    CheeseMoonActive = false;
+
+            }
+
+            if (Main.dayTime && VolcanoCountdown == 0)
 			{
 				if (VolcanoCooldown > 0)
 				{
@@ -473,6 +723,19 @@ namespace ExampleMod
 					}
 				}
 			}
+
+            if(Main.LocalPlayer.GetModPlayer<ExamplePlayer>(mod).ZoneStarship)
+            {
+                if (!test)
+                {
+                    NPC uh = new NPC();
+                    uh.type = NPCID.GrayGrunt;
+                    
+                    NPC.NewNPC((int)Main.LocalPlayer.GetModPlayer<ExamplePlayer>(mod).player.position.X, (int)Main.LocalPlayer.GetModPlayer<ExamplePlayer>(mod).player.position.Y - 50,
+                        NPCID.GrayGrunt);
+                    test = true;
+                }
+            }
 		}
 
 		// In ExampleMod, we use PostDrawTiles to draw the TEScoreBoard area. PostDrawTiles draws before players, npc, and projectiles, so it works well.

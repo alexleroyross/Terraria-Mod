@@ -141,7 +141,7 @@ namespace ExampleMod.NPCs
 			}
 		}
 
-		public override void EditSpawnRate(Player player, ref int spawnRate, ref int maxSpawns)
+        public override void EditSpawnRate(Player player, ref int spawnRate, ref int maxSpawns)
 		{
 			if (player.GetModPlayer<ExamplePlayer>(mod).ZoneExample)
 			{
