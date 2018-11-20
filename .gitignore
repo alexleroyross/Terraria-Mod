@@ -39,3 +39,5 @@ Release
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+*.csproj
+*.csproj.user
