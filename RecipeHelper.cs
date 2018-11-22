@@ -89,5 +89,27 @@ namespace ExampleMod
 				editor.DeleteRecipe(); // delete the recipe
 			}
 		}
+
+        public static void AddNewRecipes(Mod mod)
+        {
+            /*
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.DirtBlock);
+            recipe.SetResult(ItemID.SharpeningStation);
+            recipe.AddRecipe();
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.DirtBlock);
+            recipe.SetResult(ItemID.Shackle);
+            recipe.AddRecipe();
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.DirtBlock);
+            recipe.SetResult(ItemID.SharkFin);
+            recipe.AddRecipe();
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.DirtBlock);
+            recipe.SetResult(ItemID.SharkToothNecklace);
+            recipe.AddRecipe();
+            */
+        }
 	}
 }

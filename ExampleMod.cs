@@ -181,6 +181,8 @@ namespace ExampleMod
 			// See RecipeHelper.cs
 			RecipeHelper.AddExampleRecipes(this);
 			RecipeHelper.ExampleRecipeEditing(this);
+
+            RecipeHelper.AddNewRecipes(this);
 		}
 
 		public override void UpdateMusic(ref int music)
