@@ -37,7 +37,6 @@ namespace ExampleMod
         public const int maxStarshipSizeY = 800;
         public const int minStarshipSizeX = 200;
         public const int minStarshipSizeY = 400;
-        bool test = false;
 
         public override void Initialize()
 		{
@@ -726,15 +725,7 @@ namespace ExampleMod
 
             if(Main.LocalPlayer.GetModPlayer<ExamplePlayer>(mod).ZoneStarship)
             {
-                if (!test)
-                {
-                    NPC uh = new NPC();
-                    uh.type = NPCID.GrayGrunt;
-                    
-                    NPC.NewNPC((int)Main.LocalPlayer.GetModPlayer<ExamplePlayer>(mod).player.position.X, (int)Main.LocalPlayer.GetModPlayer<ExamplePlayer>(mod).player.position.Y - 50,
-                        NPCID.GrayGrunt);
-                    test = true;
-                }
+                // for testing
             }
 		}
 
