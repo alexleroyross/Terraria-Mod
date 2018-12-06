@@ -128,8 +128,8 @@ namespace ExampleMod.NPCs
         {
             Random random = new Random();
 
-            npc.position.X = random.Next(Main.player[npc.target].Center.ToWorldCoordinates().X - 600, Main.player[npc.target].Center.ToWorldCoordinates().X + 600);
-            npc.position.Y = random.Next(Main.player[npc.target].Center.ToWorldCoordinates().Y - 600, Main.player[npc.target].Center.ToWorldCoordinates().Y + 600);
+            npc.position.X = random.Next((int)Main.player[npc.target].Center.ToWorldCoordinates().X - 600, (int)Main.player[npc.target].Center.ToWorldCoordinates().X + 600);
+            npc.position.Y = random.Next((int)Main.player[npc.target].Center.ToWorldCoordinates().Y - 600, (int)Main.player[npc.target].Center.ToWorldCoordinates().Y + 600);
         }
 
 		public override void FindFrame(int frameHeight)
