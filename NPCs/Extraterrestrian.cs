@@ -40,10 +40,30 @@ namespace ExampleMod.NPCs
 			bannerItem = mod.ItemType("ExtraterrestrianBanner");
 		}
 
+        // negative AI = shoot laser
 		public override void CustomBehavior(ref float ai)
 		{
 			Player player = Main.player[npc.target];
 			ai += 1f;
+
+
+            if(ai == 180f)
+            {
+                if (Main.netMode != 1)
+                {
+                    int proj = Projectile.NewProjectile(npc.Center.X, npc.Center.Y, 0f, 0f, mod.ProjectileType("WarpLaser"), npc.damage / 2, 0f, Main.myPlayer, player.Center.X, player.Center.Y);
+                }
+            }
+            if(ai >= 240f)
+            {
+                ai = 0;
+                Teleport();
+            }
+
+
+
+
+            /*
 			if (Math.Abs(npc.Center.X - player.Center.X) < 16f * 30f && Math.Abs(npc.Center.Y - player.Center.Y) < 16f * 20f)
 			{
 				if (ai >= 180f)
@@ -101,7 +121,16 @@ namespace ExampleMod.NPCs
 				int dust = Dust.NewDust(npc.position - new Vector2(8f, 8f), npc.width + 16, npc.height + 16, mod.DustType("Smoke"), 0f, 0f, 0, Color.Black);
 				Main.dust[dust].velocity += npc.velocity * 0.25f;
 			}
+            */
 		}
+
+        private void Teleport()
+        {
+            Random random = new Random();
+
+            npc.position.X = random.Next(Main.player[npc.target].Center.ToWorldCoordinates().X - 600, Main.player[npc.target].Center.ToWorldCoordinates().X + 600);
+            npc.position.Y = random.Next(Main.player[npc.target].Center.ToWorldCoordinates().Y - 600, Main.player[npc.target].Center.ToWorldCoordinates().Y + 600);
+        }
 
 		public override void FindFrame(int frameHeight)
 		{
